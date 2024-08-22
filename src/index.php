@@ -2,20 +2,34 @@
 
 require 'vendor/autoload.php';
 
-use Crawler\DocCrawler;
+use App\Crawler\DocCrawler;
+
+$generatedFiles = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Define the path to the Resources directory (adjust the path as needed)
-    $resourcesDirectory = __DIR__ . '/Resources/AquaticSciences';  // Adjust this path as needed
+    // Define the base path to the Resources directory
+    $baseResourcesDirectory = __DIR__ . '/Resources';
 
-    // Initialize the DocCrawler with the directory path
-    $docCrawler = new DocCrawler($resourcesDirectory);
+    // Get all directories inside the Resources folder
+    $directories = glob($baseResourcesDirectory . '/*', GLOB_ONLYDIR);
 
-    // Start the crawling process
-    $docCrawler->crawl();
+    // Iterate through each directory and start the crawling process
+    foreach ($directories as $resourcesDirectory) {
+        $directoryName = basename($resourcesDirectory);  // Get the name of the current directory (e.g., AquaticSciences)
 
-    echo "Crawling completed!";
-    exit;  // End script after running the crawler
+        // Initialize the DocCrawler with the current directory path
+        echo "Starting to crawl directory: {$resourcesDirectory}<br>";
+        $docCrawler = new DocCrawler($resourcesDirectory);
+
+        // Start the crawling process for this directory
+        $docCrawler->crawl();
+        echo "Finished crawling directory: {$resourcesDirectory}<br>";
+
+        // Add the generated XML file to the list
+        $generatedFiles[] = "output/{$directoryName}_output.xml";
+    }
+
+    echo "Crawling completed!<br>";
 }
 
 ?>
@@ -29,8 +43,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
 <h1>Doc Crawler</h1>
+
 <form method="post">
     <button type="submit">Start Crawling</button>
 </form>
+
+<?php if (!empty($generatedFiles)): ?>
+    <h2>Generated XML Files</h2>
+    <ul>
+        <?php foreach ($generatedFiles as $file): ?>
+            <li><a href="<?= $file ?>" target="_blank"><?= basename($file) ?></a></li>
+        <?php endforeach; ?>
+    </ul>
+<?php endif; ?>
+
 </body>
 </html>

@@ -1,39 +1,54 @@
 <?php
 
-namespace Crawler;
+namespace App\Crawler;
 
 use App\Models\Article;
 use App\Models\Issue;
-use Utils\Generator;
+use App\Utils\Generator;
 
 class DocCrawler
 {
-    private $baseDirectory;
+    private $directory;
 
-    public function __construct($baseDirectory)
+    public function __construct($directory)
     {
-        $this->baseDirectory = $baseDirectory;
+        $this->directory = $directory;
     }
 
-    public function crawl(): void
+    public function crawl()
     {
-        // Iterate through each magazine directory
-        $categories = glob($this->baseDirectory . '/*', GLOB_ONLYDIR);
-        foreach ($categories as $categoryDir) {
-            $categoryName = basename($categoryDir); // Use directory name as magazine name
+        // Recursively search for .xml files in the directory
+        $xmlFiles = $this->getXmlFiles($this->directory);
 
-            // Process each XML file within the magazine directory
-            $xmlFiles = glob($categoryDir . '/*.xml');
-            $issue = new Issue();
-            $issue->setYear(2024);  // Year is fixed as per your instruction
-
-            foreach ($xmlFiles as $xmlFile) {
-                $this->processXmlFile($xmlFile, $issue);
-            }
-
-            // Pass the populated Issue object to the Generator
-            $this->exportIssue($issue, $categoryName);
+        if (empty($xmlFiles)) {
+            echo "No XML files found in {$this->directory}.<br>";
+            return;
         }
+
+        // Array to hold all issues for this directory
+        $issues = [];
+
+        // Process each XML file as a separate issue
+        foreach ($xmlFiles as $xmlFile) {
+            echo "Processing file: {$xmlFile}<br>";
+
+            // Create a new Issue object for each file
+            $issue = new Issue();
+            $this->processXmlFile($xmlFile, $issue);
+
+            // Add the issue to the list of issues for this directory
+            $issues[] = $issue;
+        }
+
+        // Generate the output XML for the directory
+        $categoryName = basename($this->directory);
+        $this->exportIssues($issues, $categoryName);
+    }
+
+    private function getXmlFiles($directory)
+    {
+        // Search for .xml files directly in the given directory
+        return glob("{$directory}/*.xml");
     }
 
     private function processXmlFile($xmlFilePath, Issue $issue): void
@@ -62,36 +77,32 @@ class DocCrawler
 
     private function crawlVolume($xmlContent): ?string
     {
-        return $this->extractWithRegex('/C(\d+)/', $xmlContent);  // Example regex for volume
+        return $this->extractWithRegex('/<volume>(\d+)<\/volume>/', $xmlContent);
     }
 
     private function crawlNumber($xmlContent): ?string
     {
-        return $this->extractWithRegex('/S(\d+)/', $xmlContent);  // Example regex for number
+        return $this->extractWithRegex('/<number>(\d+)<\/number>/', $xmlContent);
     }
 
     private function crawlTitleEn($xmlContent): ?string
     {
-        // Example regex for extracting English title
-        return $this->extractWithRegex('/TitleEn:\s*(.*)/', $xmlContent);
+        return $this->extractWithRegex('/<title_en>(.*)<\/title_en>/', $xmlContent);
     }
 
     private function crawlTitleTr($xmlContent): ?string
     {
-        // Example regex for extracting Turkish title
-        return $this->extractWithRegex('/TitleTr:\s*(.*)/', $xmlContent);
+        return $this->extractWithRegex('/<title_tr>(.*)<\/title_tr>/', $xmlContent);
     }
 
     private function crawlAbstractEn($xmlContent): ?string
     {
-        // Example regex for extracting English abstract
-        return $this->extractWithRegex('/AbstractEn:\s*(.*)/', $xmlContent);
+        return $this->extractWithRegex('/<abstract_en>(.*)<\/abstract_en>/', $xmlContent);
     }
 
     private function crawlAbstractTr($xmlContent): ?string
     {
-        // Example regex for extracting Turkish abstract
-        return $this->extractWithRegex('/AbstractTr:\s*(.*)/', $xmlContent);
+        return $this->extractWithRegex('/<abstract_tr>(.*)<\/abstract_tr>/', $xmlContent);
     }
 
     private function extractWithRegex($pattern, $content): ?string
@@ -102,10 +113,10 @@ class DocCrawler
         return null;
     }
 
-    private function exportIssue(Issue $issue, $categoryName): void
+    private function exportIssues(array $issues, $categoryName): void
     {
-        // This will call the Generator to export the issue as XML
+        // Call the Generator to export the issues as XML
         $generator = new Generator();
-        $generator->generate($issue, $categoryName);
+        $generator->generate($issues, $categoryName);
     }
 }
