@@ -4,29 +4,57 @@ namespace App\Models;
 
 class Article
 {
-    private $title;
-    private $abstract;
-    // Add other properties as needed
+    private ?string $titleTr;
+    private ?string $titleEn;
+    private ?string $abstractTr;
+    private ?string $abstractEn;
 
-    public function setTitle($title)
+    public function __construct($titleTr, $titleEn, $abstractTr, $abstractEn)
     {
-        $this->title = $title;
+        $this->titleTr = null;
+        $this->titleEn = null;
+        $this->abstractTr = null;
+        $this->abstractEn = null;
     }
 
-    public function getTitle()
+    public function getTitleEn(): ?string
     {
-        return $this->title;
+        return $this->titleEn;
     }
 
-    public function setAbstract($abstract)
+    public function setTitleEn(?string $titleEn): void
     {
-        $this->abstract = $abstract;
+        $this->titleEn = $titleEn;
     }
 
-    public function getAbstract()
+    public function getAbstractTr(): ?string
     {
-        return $this->abstract;
+        return $this->abstractTr;
     }
 
-    // Add more setters and getters for other properties
+    public function setAbstractTr(?string $abstractTr): void
+    {
+        $this->abstractTr = $abstractTr;
+    }
+
+    public function getAbstractEn(): ?string
+    {
+        return $this->abstractEn;
+    }
+
+    public function setAbstractEn(?string $abstractEn): void
+    {
+        $this->abstractEn = $abstractEn;
+    }
+
+    public function getTitleTr(): ?string
+    {
+        return $this->titleTr;
+    }
+
+    public function setTitleTr(?string $titleTr): void
+    {
+        $this->titleTr = $titleTr;
+    }
+
 }
