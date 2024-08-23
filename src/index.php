@@ -18,12 +18,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $directoryName = basename($resourcesDirectory);  // Get the name of the current directory (e.g., AquaticSciences)
 
         // Initialize the DocCrawler with the current directory path
-        echo "Starting to crawl directory: {$resourcesDirectory}<br>";
         $docCrawler = new DocCrawler($resourcesDirectory);
 
         // Start the crawling process for this directory
         $docCrawler->crawl();
-        echo "Finished crawling directory: {$resourcesDirectory}<br>";
 
         // Add the generated XML file to the list
         $generatedFiles[] = "output/{$directoryName}_output.xml";
