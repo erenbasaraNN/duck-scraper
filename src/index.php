@@ -8,7 +8,7 @@ $generatedFiles = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Define the base path to the Resources directory
-    $baseResourcesDirectory = __DIR__ . '/Resources';
+    $baseResourcesDirectory = __DIR__ . '/Resources/Documents';
 
     // Get all directories inside the Resources folder
     $directories = glob($baseResourcesDirectory . '/*', GLOB_ONLYDIR);

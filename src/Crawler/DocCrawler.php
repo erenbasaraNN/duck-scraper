@@ -142,7 +142,7 @@ class DocCrawler
     private function crawlAbstractTr($xmlContent): ?string
     {
         // Define a regex pattern to match different forms of the word "ÖZET"
-        $pattern = '/<w:t>\s*(?:ÖZET:|Özet:|ÖZET|Özet|ÖZET )\s*<\/w:t>.*?<w:t>(.*?)<\/w:t>/si';
+        $pattern = '/<w:t>\s*(?:ÖZET:|Özet:|ÖZET|Özet|Öz|ÖZ:|ÖZET )\s*<\/w:t>.*?<w:t>(.*?)<\/w:t>/si';
 
         // Extract the abstract content using the primary pattern
         $abstract = $this->extractWithRegex($pattern, $xmlContent);
