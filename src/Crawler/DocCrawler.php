@@ -36,7 +36,7 @@ class DocCrawler
         foreach ($xmlFiles as $xmlFile) {
             $issue = new Issue();
             $this->processXmlFile($xmlFile, $issue);
-            $this->fetchPdfsForIssue($issue);  // Fetch PDFs for this issue
+            $this->fetchPdfsForIssue($issue);
             $issues[] = $issue;
         }
 
@@ -59,7 +59,6 @@ class DocCrawler
         $issue->setYear(2024);
         $this->extractVolumeAndNumber($xmlContent, $issue);
 
-        // PDF yollarını getir
         $pdfPaths = $this->fetchPdfsForIssue($issue);
 
         preg_match_all('/Makale (\d+)/', $xmlContent, $matches, PREG_OFFSET_CAPTURE);
@@ -122,7 +121,6 @@ class DocCrawler
 
         $pdfFiles = $this->getPdfFiles($pdfDirectory);
 
-        // Return the full paths of the PDF files
         return array_map(function ($file) use ($pdfDirectory) {
             return $pdfDirectory . '/' . $file;
         }, $pdfFiles);
@@ -133,10 +131,10 @@ class DocCrawler
     {
         $logDirectory = dirname($logFilePath);
         if (!is_dir($logDirectory)) {
-            mkdir($logDirectory, 0777, true); // Klasörleri oluştur
+            mkdir($logDirectory, 0777, true);
         }
 
-        $message = "Missing PDF directory: {$pdfDirectory} - " . date('Y-m-d H:i:s') . PHP_EOL;
+        $message = "Missing PDF directory: $pdfDirectory - " . date('Y-m-d H:i:s') . PHP_EOL;
         file_put_contents($logFilePath, $message, FILE_APPEND);
     }
 
@@ -145,27 +143,21 @@ class DocCrawler
      */
     private function getIssuePdfDirectory(string $categoryName, Issue $issue): string
     {
-        // Volume ve number verilerini al
         $volume = $issue->getVolume();
         $number = $issue->getNumber();
 
-        // Klasör içinde farklı formatları içeren klasörü bulmaya çalış
-        $patternFull = "/Cilt\s*{$volume}.*Sayı\s*{$number}/i";  // Tam format için regex
-        $patternShort = "/C{$volume}S{$number}/i";  // Kısaltılmış format için regex
-        $patternNoSpace = "/Cilt{$volume}Sayı{$number}/i";  // Bitişik format için regex
+        $patternFull = "/Cilt\s*$volume.*Sayı\s*$number/i";
+        $patternShort = "/C{$volume}S$number/i";
+        $patternNoSpace = "/Cilt{$volume}Sayı$number/i";
 
-        // Kategoriye ait tüm klasörleri tarar
-        $categoryDirectory = "{$this->pdfsDirectory}/{$categoryName}";
+        $categoryDirectory = "$this->pdfsDirectory/$categoryName";
 
-        // Tam formatı bulmaya çalış
         $matchedDirectory = $this->findMatchingDirectory($categoryDirectory, $patternFull);
 
-        // Eğer tam format bulunamazsa, kısaltılmış formata göre arama yap
         if (!$matchedDirectory) {
             $matchedDirectory = $this->findMatchingDirectory($categoryDirectory, $patternShort);
         }
 
-        // Eğer kısaltılmış format da bulunamazsa, bitişik formata göre arama yap
         if (!$matchedDirectory) {
             $matchedDirectory = $this->findMatchingDirectory($categoryDirectory, $patternNoSpace);
         }
@@ -173,13 +165,11 @@ class DocCrawler
         if ($matchedDirectory) {
             return $matchedDirectory;
         } else {
-            // Klasör bulunamazsa bir uyarı verebiliriz veya alternatif bir işlem yapılabilir
-            throw new Exception("Cilt {$volume} Sayı {$number} içeren klasör bulunamadı: {$categoryDirectory}");
+            throw new Exception("Cilt $volume Sayı $number içeren klasör bulunamadı: $categoryDirectory");
         }
     }
 
     /**
-     * Klasör adlarını verilen bir pattern ile eşleştirir.
      * @param string $directory
      * @param string $pattern
      * @return string|null
@@ -188,10 +178,9 @@ class DocCrawler
     private function findMatchingDirectory(string $directory, string $pattern): ?string
     {
         if (!is_dir($directory)) {
-            throw new Exception("Dizin mevcut değil: {$directory}");
+            throw new Exception("Dizin mevcut değil: $directory");
         }
 
-        // Klasörleri tarar
         $folders = scandir($directory);
 
         foreach ($folders as $folder) {
@@ -199,13 +188,12 @@ class DocCrawler
                 continue;
             }
 
-            // Klasör adı pattern ile eşleşiyor mu kontrol et
             if (preg_match($pattern, $folder)) {
-                return "{$directory}/{$folder}";
+                return "$directory/$folder";
             }
         }
 
-        return null;  // Eşleşen klasör bulunamadı
+        return null;
     }
 
 
@@ -216,7 +204,6 @@ class DocCrawler
             return [];
         }
 
-        // Filter to include only PDF files
         return array_values(array_filter($pdfFiles, function ($file) {
             return pathinfo($file, PATHINFO_EXTENSION) === 'pdf';
         }));
@@ -317,7 +304,7 @@ class DocCrawler
 
     private function exportIssues(array $issues, $categoryName): void
     {
-        $generator = new Generator($this->documentsDirectory, $this->pdfsDirectory);
+        $generator = new Generator($this->documentsDirectory);
         $generator->generate($issues, $categoryName);
     }
 }

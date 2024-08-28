@@ -20,8 +20,8 @@ class Generator
             $issuesElement = $xmlDoc->createElement('issues');
             $xmlDoc->appendChild($issuesElement);
 
-            // Loop through each issue and add it to the XML
             foreach ($issues as $issueObj) {
+                /** @var Issue $issueObj */
                 $issueElement = $xmlDoc->createElement('issue');
                 $issuesElement->appendChild($issueElement);
 
@@ -43,52 +43,35 @@ class Generator
                     $articleElement = $xmlDoc->createElement('article');
                     $articlesElement->appendChild($articleElement);
 
-                    // Retrieve the PDF URL
                     $pdfUrl = $articleObj->getPdfUrl() ?? '';
 
-                    // Debugging: Check if PDF URL is being retrieved correctly
-                    if (empty($pdfUrl)) {
-                        echo "Warning: PDF URL is empty for article titled: " . $articleObj->getTitleEn() . "<br>";
-                    } else {
-                        echo "Writing PDF URL to XML for article titled '" . $articleObj->getTitleEn() . "': " . $pdfUrl . "<br>";
-                    }
-
-                    // Write PDF URL to XML
                     try {
-                        // Write the fulltext-file element
-                        $fulltextFileElement = $xmlDoc->createElement('fulltext-file', $pdfUrl);  // Removed htmlspecialchars() for testing
+                        $fulltextFileElement = $xmlDoc->createElement('fulltext-file', $pdfUrl);
                         $articleElement->appendChild($fulltextFileElement);
                     } catch (DOMException $e) {
                         echo "Error writing fulltext-file for article titled: " . $articleObj->getTitleEn() . " - " . $e->getMessage() . "<br>";
                     }
 
-                    // Page numbers
                     $firstPageElement = $xmlDoc->createElement('firstpage', htmlspecialchars($articleObj->getFirstPage() ?? ''));
                     $articleElement->appendChild($firstPageElement);
 
                     $lastPageElement = $xmlDoc->createElement('lastpage', htmlspecialchars($articleObj->getLastPage() ?? ''));
                     $articleElement->appendChild($lastPageElement);
 
-                    // Primary language determination
                     $primaryLanguage = $this->determinePrimaryLanguage($articleObj);
                     $primaryLanguageElement = $xmlDoc->createElement('primary-language', htmlspecialchars($primaryLanguage));
                     $articleElement->appendChild($primaryLanguageElement);
 
-                    // Translations
                     $this->appendTranslations($xmlDoc, $articleElement, $articleObj);
 
-                    // Authors
                     $this->appendAuthors($xmlDoc, $articleElement, $articleObj);
 
-                    // Citations
                     $this->appendCitations($xmlDoc, $articleElement, $articleObj);
                 }
             }
 
-            // Determine the output file path based on the category name
             $outputFilePath = __DIR__ . "/../output/{$categoryName}_output.xml";
 
-            // Save the XML file
             $this->saveXml($xmlDoc, $outputFilePath);
         } catch (Exception $e) {
             echo "Error generating XML: " . $e->getMessage() . "<br>";
@@ -107,12 +90,14 @@ class Generator
         return '';
     }
 
+    /**
+     * @throws DOMException
+     */
     private function appendTranslations(DOMDocument $xmlDoc, $articleElement, Article $articleObj): void
     {
         $translationsElement = $xmlDoc->createElement('translations');
         $articleElement->appendChild($translationsElement);
 
-        // Turkish translation
         if (!empty($articleObj->getTitleTr())) {
             $translationTrElement = $xmlDoc->createElement('translation');
             $translationsElement->appendChild($translationTrElement);
@@ -122,7 +107,6 @@ class Generator
             $translationTrElement->appendChild($xmlDoc->createElement('keywords', htmlspecialchars($articleObj->getKeywordsTr() ?? '')));
         }
 
-        // English translation
         if (!empty($articleObj->getTitleEn())) {
             $translationEnElement = $xmlDoc->createElement('translation');
             $translationsElement->appendChild($translationEnElement);
@@ -133,6 +117,9 @@ class Generator
         }
     }
 
+    /**
+     * @throws DOMException
+     */
     private function appendAuthors(DOMDocument $xmlDoc, $articleElement, Article $articleObj): void
     {
         $authorsElement = $xmlDoc->createElement('authors');
@@ -146,6 +133,9 @@ class Generator
         }
     }
 
+    /**
+     * @throws DOMException
+     */
     private function appendCitations(DOMDocument $xmlDoc, $articleElement, Article $articleObj): void
     {
         $citationsElement = $xmlDoc->createElement('citations');
@@ -159,22 +149,19 @@ class Generator
         }
     }
 
+    /**
+     * @throws Exception
+     */
     private function saveXml(DOMDocument $xmlDoc, string $filePath): void
     {
         try {
-            // Create the output directory if it doesn't exist
             $outputDirectory = dirname($filePath);
             if (!is_dir($outputDirectory)) {
                 mkdir($outputDirectory, 0777, true);
             }
 
-            // Save the formatted XML to the file
-            $result = $xmlDoc->save($filePath);
-            if ($result === false) {
-                throw new Exception("Failed to save XML to {$filePath}");
-            } else {
-                echo "XML successfully saved to {$filePath}<br>";
-            }
+            $xmlDoc->save($filePath);
+
         } catch (Exception $e) {
             throw new Exception("Error saving XML: " . $e->getMessage());
         }
