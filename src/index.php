@@ -7,18 +7,20 @@ use App\Crawler\DocCrawler;
 $generatedFiles = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Define the base path to the Resources directory
-    $baseResourcesDirectory = __DIR__ . '/Resources/Documents';
+    // Define the base path to the Resources directories for Documents and PDFs
+    $baseResourcesDirectory = __DIR__ . '/Resources';
+    $documentsDirectory = $baseResourcesDirectory . '/Documents';
+    $pdfsDirectory = $baseResourcesDirectory . '/PDFS';
 
-    // Get all directories inside the Resources folder
-    $directories = glob($baseResourcesDirectory . '/*', GLOB_ONLYDIR);
+    // Get all directories inside the Documents folder
+    $directories = glob($documentsDirectory . '/*', GLOB_ONLYDIR);
 
     // Iterate through each directory and start the crawling process
     foreach ($directories as $resourcesDirectory) {
-        $directoryName = basename($resourcesDirectory);  // Get the name of the current directory (e.g., AquaticSciences)
+        $directoryName = basename($resourcesDirectory);  // Get the name of the current directory (e.g., Aquatic)
 
-        // Initialize the DocCrawler with the current directory path
-        $docCrawler = new DocCrawler($resourcesDirectory);
+        // Initialize the DocCrawler with the current directory, documentsDirectory, and pdfsDirectory
+        $docCrawler = new DocCrawler($resourcesDirectory, $documentsDirectory, $pdfsDirectory);
 
         // Start the crawling process for this directory
         $docCrawler->crawl();
