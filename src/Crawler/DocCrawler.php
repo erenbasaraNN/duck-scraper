@@ -168,7 +168,6 @@ class DocCrawler
             throw new Exception("Cilt $volume Sayı $number içeren klasör bulunamadı: $categoryDirectory");
         }
     }
-
     /**
      * @param string $directory
      * @param string $pattern

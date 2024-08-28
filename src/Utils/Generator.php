@@ -13,9 +13,8 @@ class Generator
     public function generate(array $issues, string $categoryName): void
     {
         try {
-            // Create the root element for the XML output
             $xmlDoc = new DOMDocument('1.0', 'UTF-8');
-            $xmlDoc->formatOutput = true;  // Enable formatting with indentation and line breaks
+            $xmlDoc->formatOutput = true;
 
             $issuesElement = $xmlDoc->createElement('issues');
             $xmlDoc->appendChild($issuesElement);
@@ -34,7 +33,6 @@ class Generator
                 $numberElement = $xmlDoc->createElement('number', htmlspecialchars($issueObj->getNumber() ?? ''));
                 $issueElement->appendChild($numberElement);
 
-                // Add articles to the issue
                 $articlesElement = $xmlDoc->createElement('articles');
                 $issueElement->appendChild($articlesElement);
 
