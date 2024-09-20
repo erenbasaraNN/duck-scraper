@@ -4,14 +4,21 @@ services:
   php:
     build:
       context: .
-      dockerfile: docker/Dockerfile
+      dockerfile: duck_scraper/src/Dockerfile
     volumes:
-      - ./src:/var/www/html
-      - ./docker/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+      - ./duck_scraper/src:/var/www/html
+      - ./duck_scraper/src/docker/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+      - ./duck_scraper/src
     ports:
       - "8080:80"
     environment:
       XDEBUG_CONFIG: "client_host=host.docker.internal"
+    user: root
+    command: >
+        bash -c "
+          composer install --optimize-autoloader &&
+          apache2-foreground
+        "
     networks:
       - app-network
 

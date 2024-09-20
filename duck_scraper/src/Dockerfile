@@ -24,11 +24,14 @@ RUN pecl install xdebug \
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
 
-# Set the working directory
-WORKDIR /var/www/html
-
-# Copy application files
+# Uygulama kodlarını kopyalıyoruz
 COPY ./src /var/www/html
 
+# Çalışma dizinini belirliyoruz
+WORKDIR /var/www/html
+RUN chown -R www-data:www-data /var/www/html
+RUN chmod -R 777 /var/www/html
+
+USER www-data
 # Start Apache server in the foreground
 CMD ["apache2-foreground"]

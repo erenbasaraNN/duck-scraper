@@ -6,6 +6,7 @@ use App\Models\Article;
 use App\Models\Issue;
 use App\Utils\Generator;
 use Exception;
+use RuntimeException;
 
 class DocCrawler
 {
@@ -121,7 +122,7 @@ class DocCrawler
 
         $pdfFiles = $this->getPdfFiles($pdfDirectory);
 
-        return array_map(function ($file) use ($pdfDirectory) {
+        return array_map(static function ($file) use ($pdfDirectory) {
             return $pdfDirectory . '/' . $file;
         }, $pdfFiles);
     }
@@ -130,8 +131,8 @@ class DocCrawler
     private function logMissingPdfDirectory(string $pdfDirectory, string $logFilePath): void
     {
         $logDirectory = dirname($logFilePath);
-        if (!is_dir($logDirectory)) {
-            mkdir($logDirectory, 0777, true);
+        if (!is_dir($logDirectory) && !mkdir($logDirectory, 0777, true) && !is_dir($logDirectory)) {
+            throw new RuntimeException(sprintf('Directory "%s" was not created', $logDirectory));
         }
 
         $message = "Missing PDF directory: $pdfDirectory - " . date('Y-m-d H:i:s') . PHP_EOL;
@@ -164,9 +165,9 @@ class DocCrawler
 
         if ($matchedDirectory) {
             return $matchedDirectory;
-        } else {
-            throw new Exception("Cilt $volume Sayı $number içeren klasör bulunamadı: $categoryDirectory");
         }
+
+        throw new RuntimeException("Cilt $volume Sayı $number içeren klasör bulunamadı: $categoryDirectory");
     }
     /**
      * @param string $directory
@@ -177,7 +178,7 @@ class DocCrawler
     private function findMatchingDirectory(string $directory, string $pattern): ?string
     {
         if (!is_dir($directory)) {
-            throw new Exception("Dizin mevcut değil: $directory");
+            throw new RuntimeException("Dizin mevcut değil: $directory");
         }
 
         $folders = scandir($directory);
@@ -203,7 +204,7 @@ class DocCrawler
             return [];
         }
 
-        return array_values(array_filter($pdfFiles, function ($file) {
+        return array_values(array_filter($pdfFiles, static function ($file) {
             return pathinfo($file, PATHINFO_EXTENSION) === 'pdf';
         }));
     }

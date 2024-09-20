@@ -11,6 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $baseResourcesDirectory = __DIR__ . '/Resources';
     $documentsDirectory = $baseResourcesDirectory . '/Documents';
     $pdfsDirectory = $baseResourcesDirectory . '/PDFS';
+    $outputDir = '/var/tmp/web_crawler/xml/';
 
     // Get all directories inside the Documents folder
     $directories = glob($documentsDirectory . '/*', GLOB_ONLYDIR);
@@ -23,39 +24,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $docCrawler = new DocCrawler($resourcesDirectory, $documentsDirectory, $pdfsDirectory);
 
         // Start the crawling process for this directory
-        $docCrawler->crawl();
+        try {
+            $docCrawler->crawl();
+        } catch (Exception $e) {
+        }
 
         // Add the generated XML file to the list
-        $generatedFiles[] = "output/{$directoryName}_output.xml";
+        $generatedFiles[] = "$outputDir . {$directoryName}_output.xml";
     }
 
     echo "Crawling completed!<br>";
 }
 
-?>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Doc Crawler</title>
-</head>
-<body>
-<h1>Doc Crawler</h1>
-
-<form method="post">
-    <button type="submit">Start Crawling</button>
-</form>
-
-<?php if (!empty($generatedFiles)): ?>
-    <h2>Generated XML Files</h2>
-    <ul>
-        <?php foreach ($generatedFiles as $file): ?>
-            <li><a href="<?= $file ?>" target="_blank"><?= basename($file) ?></a></li>
-        <?php endforeach; ?>
-    </ul>
-<?php endif; ?>
-
-</body>
-</html>
+include 'Templates/index.html';

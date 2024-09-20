@@ -7,6 +7,9 @@ use App\Models\Issue;
 use DOMDocument;
 use DOMException;
 use Exception;
+use RuntimeException;
+
+// FORMAT OUTPUT GENERATE FONKSİYONU BAŞINDA
 
 class Generator
 {
@@ -80,9 +83,13 @@ class Generator
     {
         if (!empty($articleObj->getTitleTr()) && !empty($articleObj->getTitleEn())) {
             return 'tr';
-        } elseif (!empty($articleObj->getTitleTr())) {
+        }
+
+        if (!empty($articleObj->getTitleTr())) {
             return 'tr';
-        } elseif (!empty($articleObj->getTitleEn())) {
+        }
+
+        if (!empty($articleObj->getTitleEn())) {
             return 'en';
         }
         return '';
@@ -154,14 +161,14 @@ class Generator
     {
         try {
             $outputDirectory = dirname($filePath);
-            if (!is_dir($outputDirectory)) {
-                mkdir($outputDirectory, 0777, true);
+            if (!is_dir($outputDirectory) && !mkdir($outputDirectory, 0777, true) && !is_dir($outputDirectory)) {
+                throw new RuntimeException(sprintf('Directory "%s" was not created', $outputDirectory));
             }
 
             $xmlDoc->save($filePath);
 
         } catch (Exception $e) {
-            throw new Exception("Error saving XML: " . $e->getMessage());
+            throw new RuntimeException("Error saving XML: " . $e->getMessage());
         }
     }
 }
