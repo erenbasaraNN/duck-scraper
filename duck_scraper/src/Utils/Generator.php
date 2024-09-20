@@ -11,14 +11,18 @@ use RuntimeException;
 
 class Generator
 {
+
     public function generate(array $issues, string $categoryName): void
     {
         try {
             $xmlDoc = new DOMDocument('1.0', 'UTF-8');
             $xmlDoc->formatOutput = true;
 
+            $journalElement = $xmlDoc->createElement('journal');
+            $xmlDoc->appendChild($journalElement);
+
             $issuesElement = $xmlDoc->createElement('issues');
-            $xmlDoc->appendChild($issuesElement);
+            $journalElement->appendChild($issuesElement);
 
             foreach ($issues as $issueObj) {
                 /** @var Issue $issueObj */

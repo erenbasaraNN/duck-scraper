@@ -31,8 +31,6 @@ class Article
         $this->primaryLanguage = null;
         $this->authors = [];
         $this->citations = [];
-
-
     }
 
     public function getTitleTr(): ?string

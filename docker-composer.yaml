@@ -10,7 +10,7 @@ services:
       - ./duck_scraper/docker/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
     ports:
       - "8080:80"
-    environment: { XDEBUG_CONFIG: "client_host=host.docker.internal client_port=42815" , YTLABS_PATH: "yt.com.tr",PHP_IDE_CONFIG: "serverName=web_crawler" }
+    environment: { XDEBUG_CONFIG: "client_host=host.docker.internal client_port=42815" , YTLABS_PATH: "yt.com.tr",PHP_IDE_CONFIG: "serverName=duck_scraper" }
     user: root
     command: >
         bash -c "

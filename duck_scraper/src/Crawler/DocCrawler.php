@@ -11,14 +11,12 @@ use RuntimeException;
 class DocCrawler
 {
     private string $directory;
-    private string $documentsDirectory;
     private string $pdfsDirectory;
     private string $ytlabsPath;
 
-    public function __construct(string $directory, string $documentsDirectory, string $pdfsDirectory)
+    public function __construct(string $directory, string $pdfsDirectory)
     {
         $this->directory = $directory;
-        $this->documentsDirectory = $documentsDirectory;
         $this->pdfsDirectory = $pdfsDirectory;
         $this->ytlabsPath = getenv('YTLABS_PATH');
     }
@@ -59,7 +57,7 @@ class DocCrawler
     private function processXmlFile(string $xmlFilePath, Issue $issue): void
     {
         $xmlContent = file_get_contents($xmlFilePath);
-        $issue->setYear(2024);
+        $issue->setYear(404);
         $this->extractVolumeAndNumber($xmlContent, $issue);
 
         $pdfPaths = $this->fetchPdfsForIssue($issue);
@@ -100,8 +98,7 @@ class DocCrawler
     {
         $pattern = '/<w:t>C(\d+)S(\d+)/';
         if (preg_match($pattern, $xmlContent, $matches)) {
-            $volume = $matches[1];
-            $number = $matches[2];
+            [$volume, $number] = [$matches[1], $matches[2]];
             $issue->setVolume($volume);
             $issue->setNumber($number);
         }
@@ -277,7 +274,7 @@ class DocCrawler
 
     private function crawlCitations($xmlContent): array
     {
-        $citationPattern = '/<w:t>\s*(?:KAYNAKLAR|KAYNAKÇA|KAYNAKÇA:|KAYNAKLAR:|KAYNAKLAR\s*:|REFERENCES|REFERENCES:|REFERENCES\s*:)\s*<\/w:t>.*?(<w:p>.*?<\/w:p>)+/si';
+        $citationPattern = '/<w:t>\s*(?:KAYNAKLAR|KAYNAKÇA|KAYNAKÇA:|KAYNAKLAR:|KAYNAKLAR\s*:|REFERENCES|REFERENCES:|REFERENCES\s*:)\s*<\/w:t>.*?(<w:p>.*?<\/w:p>)+/siu';
 
         $citations = [];
         $row = 1;
@@ -307,7 +304,7 @@ class DocCrawler
 
     private function exportIssues(array $issues, $categoryName): void
     {
-        $generator = new Generator($this->documentsDirectory);
+        $generator = new Generator();
         $generator->generate($issues, $categoryName);
     }
 }

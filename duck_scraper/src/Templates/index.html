@@ -1,26 +1,26 @@
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Doc Crawler</title>
+    <link rel="stylesheet" href="./Templates/styles.css">
 </head>
+
 <body>
-<h1>Doc Crawler</h1>
+<div class="container">
+    <h1>Doc Crawler</h1>
 
-<form method="post">
-    <button type="submit">Start Crawling</button>
-</form>
+    <form method="post">
+        <button type="submit">Start Crawling</button>
+    </form>
 
-<?php if (!empty($generatedFiles)): ?>
-<h2>Generated XML Files</h2>
-<ul>
-    <?php foreach ($generatedFiles as $file): ?>
-    <li><a href="<?= $file ?>" target="_blank"><?= basename($file) ?></a></li>
-    <?php endforeach; ?>
-</ul>
-<?php endif; ?>
-
+    <h2>Generated XML Files</h2>
+    <ul>
+        <!-- LIGROUP -->
+    </ul>
+</div>
 </body>
+
 </html>

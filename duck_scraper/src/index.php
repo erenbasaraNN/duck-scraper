@@ -5,7 +5,7 @@ require 'vendor/autoload.php';
 use App\Crawler\DocCrawler;
 
 $generatedFiles = [];
-
+$indexHtml = file_get_contents('Templates/index.html');
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Define the base path to the Resources directories for Documents and PDFs
     $baseResourcesDirectory = __DIR__ . '/Resources';
@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $directoryName = basename($resourcesDirectory);  // Get the name of the current directory (e.g., Aquatic)
 
         // Initialize the DocCrawler with the current directory, documentsDirectory, and pdfsDirectory
-        $docCrawler = new DocCrawler($resourcesDirectory, $documentsDirectory, $pdfsDirectory);
+        $docCrawler = new DocCrawler($resourcesDirectory, $pdfsDirectory);
 
         // Start the crawling process for this directory
         try {
@@ -30,10 +30,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Add the generated XML file to the list
-        $generatedFiles[] = "$outputDir . {$directoryName}_output.xml";
+        $generatedFiles[] = (string)$outputDir . "{$directoryName}_output.xml";
     }
 
+    $liGroup = '';
+    foreach ($generatedFiles as $file) {
+        $liTag = sprintf('<li><a href="%s" target="_blank">%s</a></li>', htmlspecialchars($file), htmlspecialchars($file));
+        $liGroup .= $liTag;
+    }
+    $indexHtml = str_replace('<!-- LIGROUP -->', $liGroup, $indexHtml);
     echo "Crawling completed!<br>";
 }
+echo $indexHtml;
 
-include 'Templates/index.html';
