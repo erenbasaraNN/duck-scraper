@@ -9,8 +9,6 @@ use DOMException;
 use Exception;
 use RuntimeException;
 
-// FORMAT OUTPUT GENERATE FONKSİYONU BAŞINDA
-
 class Generator
 {
     public function generate(array $issues, string $categoryName): void
@@ -71,7 +69,8 @@ class Generator
                 }
             }
 
-            $outputFilePath = __DIR__ . "/../output/{$categoryName}_output.xml";
+            $outputDir = '/var/tmp/web_crawler/xml/';
+            $outputFilePath = $outputDir . "{$categoryName}_output.xml";
 
             $this->saveXml($xmlDoc, $outputFilePath);
         } catch (Exception $e) {
@@ -160,13 +159,12 @@ class Generator
     private function saveXml(DOMDocument $xmlDoc, string $filePath): void
     {
         try {
-            $outputDirectory = dirname($filePath);
-            if (!is_dir($outputDirectory) && !mkdir($outputDirectory, 0777, true) && !is_dir($outputDirectory)) {
-                throw new RuntimeException(sprintf('Directory "%s" was not created', $outputDirectory));
+            $outputDir = dirname($filePath);
+            if (!is_dir($outputDir) && !mkdir($outputDir, 0777, true) && !is_dir($outputDir)) {
+                throw new RuntimeException(sprintf('Directory "%s" was not created', $outputDir));
             }
 
             $xmlDoc->save($filePath);
-
         } catch (Exception $e) {
             throw new RuntimeException("Error saving XML: " . $e->getMessage());
         }

@@ -13,12 +13,14 @@ class DocCrawler
     private string $directory;
     private string $documentsDirectory;
     private string $pdfsDirectory;
+    private string $ytlabsPath;
 
     public function __construct(string $directory, string $documentsDirectory, string $pdfsDirectory)
     {
         $this->directory = $directory;
         $this->documentsDirectory = $documentsDirectory;
         $this->pdfsDirectory = $pdfsDirectory;
+        $this->ytlabsPath = getenv('YTLABS_PATH');
     }
 
     /**
@@ -110,7 +112,7 @@ class DocCrawler
      */
     private function fetchPdfsForIssue(Issue $issue): array
     {
-        $logFilePath = __DIR__ . '/../logs/missing_pdfs.log';
+        $logFilePath = __DIR__ . '/var/tmp/web_crawler/logs/missing_pdfs.log';
 
         $categoryName = basename($this->directory);
         $pdfDirectory = $this->getIssuePdfDirectory($categoryName, $issue);
@@ -122,8 +124,9 @@ class DocCrawler
 
         $pdfFiles = $this->getPdfFiles($pdfDirectory);
 
-        return array_map(static function ($file) use ($pdfDirectory) {
-            return $pdfDirectory . '/' . $file;
+        return array_map(function ($file) use ($categoryName) {
+            // Construct the URL in the desired format
+            return $this->ytlabsPath . "/PDF/" . $categoryName . "/" . $file;
         }, $pdfFiles);
     }
 
